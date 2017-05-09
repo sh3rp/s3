@@ -7,8 +7,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tofile string
-
 var GetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get a file in a bucket",
