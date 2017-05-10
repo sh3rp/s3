@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -32,17 +33,9 @@ func GetService(region string, bucket string) *S3Service {
 	return &S3Service{s3: svc, uploadManager: uploader, bucket: bucket}
 }
 
-func (svc *S3Service) S3ListBucket() {
-	resp, err := svc.s3.ListObjects(&s3.ListObjectsInput{
-		Bucket: &svc.bucket,
-	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	fmt.Printf("%-30s %s\n", "Name", "Size")
-	for _, obj := range resp.Contents {
+func (svc *S3Service) S3ListBucket(key string) {
+	objects := svc.S3GetObjects(key)
+	for _, obj := range objects {
 		fmt.Printf("%-30s %d\n", *obj.Key, *obj.Size)
 	}
 }
@@ -64,7 +57,7 @@ func (svc *S3Service) S3PutObject(filename string) {
 	fmt.Printf("File uploaded to %s\n", result.Location)
 }
 
-func (svc *S3Service) S3GetObject(key string, toFile string) {
+func (svc *S3Service) S3GetObject(key string) {
 	result, err := svc.s3.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(svc.bucket),
 		Key:    aws.String(key),
@@ -74,7 +67,7 @@ func (svc *S3Service) S3GetObject(key string, toFile string) {
 	}
 	defer result.Body.Close()
 
-	file, err := os.Create(toFile)
+	file, err := os.Create(key[strings.LastIndex(key, "/")+1:])
 	defer file.Close()
 
 	if err != nil {
@@ -83,4 +76,39 @@ func (svc *S3Service) S3GetObject(key string, toFile string) {
 	if _, err := io.Copy(file, result.Body); err != nil {
 		log.Fatal("Failed to copy object to file", err)
 	}
+}
+
+func (svc S3Service) S3RawListObject(key string) {
+	resp, err := svc.s3.ListObjects(&s3.ListObjectsInput{
+		Bucket: &svc.bucket,
+		Prefix: aws.String(key),
+	})
+
+	if err != nil {
+		log.Fatal("Raw list failed")
+	}
+
+	fmt.Println(resp)
+}
+
+// private
+
+func (svc S3Service) S3GetObjects(key string) []*s3.Object {
+	resp, err := svc.s3.ListObjects(&s3.ListObjectsInput{
+		Bucket: &svc.bucket,
+		Prefix: aws.String(key),
+	})
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil
+	}
+
+	var objects []*s3.Object
+
+	for _, obj := range resp.Contents {
+		objects = append(objects, obj)
+	}
+
+	return objects
 }
