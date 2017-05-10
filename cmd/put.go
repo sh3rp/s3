@@ -11,6 +11,7 @@ var PutCmd = &cobra.Command{
 	Long:  "Put a file in a bucket",
 	Run: func(cmd *cobra.Command, args []string) {
 		svc := aws.GetService(region, bucket)
-		svc.S3PutObject(fromfile)
+		key := args[len(args)-1]
+		svc.S3PutObject(key)
 	},
 }

@@ -67,7 +67,18 @@ func (svc *S3Service) S3GetObject(key string) {
 	}
 	defer result.Body.Close()
 
-	file, err := os.Create(key[strings.LastIndex(key, "/")+1:])
+	if strings.Contains(key, "/") {
+		dir := key[0:strings.LastIndex(key, "/")]
+		if _, err := os.Stat(dir); err != nil {
+			if os.IsNotExist(err) {
+				os.MkdirAll(dir, 0755)
+			} else {
+				log.Fatal("Error for directory: %v", err)
+			}
+		}
+	}
+
+	file, err := os.Create(key)
 	defer file.Close()
 
 	if err != nil {

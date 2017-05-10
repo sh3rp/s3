@@ -11,6 +11,7 @@ var LsCmd = &cobra.Command{
 	Long:  "List all files in a bucket",
 	Run: func(cmd *cobra.Command, args []string) {
 		svc := aws.GetService(region, bucket)
+		key := args[len(args)-1]
 		svc.S3ListBucket(key)
 	},
 }

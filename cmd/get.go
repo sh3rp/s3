@@ -14,7 +14,7 @@ var GetCmd = &cobra.Command{
 	Long:  "Get a file in a bucket",
 	Run: func(cmd *cobra.Command, args []string) {
 		svc := aws.GetService(region, bucket)
-
+		key := args[len(args)-1]
 		objects := svc.S3GetObjects(key)
 
 		if len(objects) < 2 {
