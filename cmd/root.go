@@ -26,4 +26,5 @@ func Init() {
 	RootCmd.AddCommand(VersionCmd)
 	RootCmd.AddCommand(InfoCmd)
 	RootCmd.AddCommand(RmCmd)
+	RootCmd.AddCommand(TagCmd)
 }

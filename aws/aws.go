@@ -131,6 +131,27 @@ func (svc S3Service) S3RemoveObject(key string) {
 	}
 }
 
+func (svc S3Service) S3TagObject(key string, tags map[string]string) {
+	var tagset []*s3.Tag
+
+	for k, v := range tags {
+		tagset = append(tagset, &s3.Tag{Key: aws.String(k), Value: aws.String(v)})
+	}
+
+	_, err := svc.s3.PutObjectTagging(&s3.PutObjectTaggingInput{
+		Bucket: aws.String(svc.Bucket),
+		Key:    aws.String(key),
+		Tagging: &s3.Tagging{
+			TagSet: tagset,
+		},
+	})
+
+	if err != nil {
+		log.Fatalf("Error tagging object: %v\n", err)
+	}
+	fmt.Printf("Tagged %s with %v\n", key, tags)
+}
+
 func (svc S3Service) S3GetObjects(key string) []*s3.Object {
 	resp, err := svc.s3.ListObjects(&s3.ListObjectsInput{
 		Bucket: &svc.Bucket,
