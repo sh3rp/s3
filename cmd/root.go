@@ -2,6 +2,9 @@ package cmd
 
 import "github.com/spf13/cobra"
 
+var VERSION_MAJOR = 1
+var VERSION_MINOR = 0
+
 var bucket string
 var region string
 
@@ -20,4 +23,5 @@ func Init() {
 	RootCmd.AddCommand(LsCmd)
 	RootCmd.AddCommand(GetCmd)
 	RootCmd.AddCommand(PutCmd)
+	RootCmd.AddCommand(VersionCmd)
 }
