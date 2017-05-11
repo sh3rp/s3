@@ -14,6 +14,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
+var ACCESS_KEY = "S3_ACCESS_KEY"
+var SECRET_ACCESS_KEY = "S3_SECRET_ACCESS_KEY"
+var BUCKET = "S3_BUCKET"
+var REGION = "S3_REGION"
+
 type S3Service struct {
 	s3                *s3.S3
 	uploadManager     *s3manager.Uploader
@@ -24,13 +29,13 @@ type S3Service struct {
 }
 
 func GetService(region string, bucket string) *S3Service {
-	access_key := os.Getenv("S3_ACCESS_KEY")
-	secret_access_key := os.Getenv("S3_SECRET_ACCESS_KEY")
+	access_key := os.Getenv(ACCESS_KEY)
+	secret_access_key := os.Getenv(SECRET_ACCESS_KEY)
 	if bucket == "" {
-		bucket = os.Getenv("S3_BUCKET")
+		bucket = os.Getenv(BUCKET)
 	}
 	if region == "" {
-		region = os.Getenv("S3_REGION")
+		region = os.Getenv(REGION)
 	}
 	token := ""
 	creds := credentials.NewStaticCredentials(access_key, secret_access_key, token)
