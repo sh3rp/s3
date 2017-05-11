@@ -8,6 +8,8 @@ written in Python and require external Python libraries to run.
 
     go get -u github.com/sh3rp/s3
 
+Then run 's3 help'.
+
 # Usage
 
 The utility uses four environment variables:
