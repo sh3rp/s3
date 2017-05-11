@@ -18,10 +18,12 @@ var RootCmd = &cobra.Command{
 }
 
 func Init() {
-	RootCmd.PersistentFlags().StringVarP(&region, "region", "r", "us-east-1", "AWS region to use")
-	RootCmd.PersistentFlags().StringVarP(&bucket, "bucket", "b", "sh3rp", "AWS S3 bucket to use")
+	RootCmd.PersistentFlags().StringVarP(&region, "region", "r", "", "AWS region to use")
+	RootCmd.PersistentFlags().StringVarP(&bucket, "bucket", "b", "", "AWS S3 bucket to use")
 	RootCmd.AddCommand(LsCmd)
 	RootCmd.AddCommand(GetCmd)
 	RootCmd.AddCommand(PutCmd)
 	RootCmd.AddCommand(VersionCmd)
+	RootCmd.AddCommand(InfoCmd)
+	RootCmd.AddCommand(RmCmd)
 }

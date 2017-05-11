@@ -15,14 +15,23 @@ import (
 )
 
 type S3Service struct {
-	s3            *s3.S3
-	uploadManager *s3manager.Uploader
-	bucket        string
+	s3                *s3.S3
+	uploadManager     *s3manager.Uploader
+	Bucket            string
+	Access_key        string
+	Secret_access_key string
+	Region            string
 }
 
 func GetService(region string, bucket string) *S3Service {
-	access_key := os.Getenv("AWS_ACCESS_KEY")
-	secret_access_key := os.Getenv("AWS_SECRET_ACCESS_KEY")
+	access_key := os.Getenv("S3_ACCESS_KEY")
+	secret_access_key := os.Getenv("S3_SECRET_ACCESS_KEY")
+	if bucket == "" {
+		bucket = os.Getenv("S3_BUCKET")
+	}
+	if region == "" {
+		region = os.Getenv("S3_REGION")
+	}
 	token := ""
 	creds := credentials.NewStaticCredentials(access_key, secret_access_key, token)
 	config := aws.NewConfig().WithRegion(region).WithCredentials(creds)
@@ -30,7 +39,14 @@ func GetService(region string, bucket string) *S3Service {
 	sess := session.Must(session.NewSession(config))
 	svc := s3.New(sess)
 	uploader := s3manager.NewUploader(sess)
-	return &S3Service{s3: svc, uploadManager: uploader, bucket: bucket}
+	return &S3Service{
+		s3:                svc,
+		uploadManager:     uploader,
+		Bucket:            bucket,
+		Access_key:        access_key,
+		Secret_access_key: secret_access_key,
+		Region:            region,
+	}
 }
 
 func (svc *S3Service) S3ListBucket(key string) {
@@ -47,7 +63,7 @@ func (svc *S3Service) S3PutObject(filename string) {
 	}
 
 	result, err := svc.uploadManager.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(svc.bucket),
+		Bucket: aws.String(svc.Bucket),
 		Key:    aws.String(filename),
 		Body:   f,
 	})
@@ -59,7 +75,7 @@ func (svc *S3Service) S3PutObject(filename string) {
 
 func (svc *S3Service) S3GetObject(key string) {
 	result, err := svc.s3.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(svc.bucket),
+		Bucket: aws.String(svc.Bucket),
 		Key:    aws.String(key),
 	})
 	if err != nil {
@@ -91,7 +107,7 @@ func (svc *S3Service) S3GetObject(key string) {
 
 func (svc S3Service) S3RawListObject(key string) {
 	resp, err := svc.s3.ListObjects(&s3.ListObjectsInput{
-		Bucket: &svc.bucket,
+		Bucket: &svc.Bucket,
 		Prefix: aws.String(key),
 	})
 
@@ -102,11 +118,22 @@ func (svc S3Service) S3RawListObject(key string) {
 	fmt.Println(resp)
 }
 
-// private
+func (svc S3Service) S3RemoveObject(key string) {
+	_, err := svc.s3.DeleteObject(&s3.DeleteObjectInput{
+		Bucket: &svc.Bucket,
+		Key:    aws.String(key),
+	})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Printf("Removed %s\n", key)
+	}
+}
 
 func (svc S3Service) S3GetObjects(key string) []*s3.Object {
 	resp, err := svc.s3.ListObjects(&s3.ListObjectsInput{
-		Bucket: &svc.bucket,
+		Bucket: &svc.Bucket,
 		Prefix: aws.String(key),
 	})
 

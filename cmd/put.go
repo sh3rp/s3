@@ -31,7 +31,7 @@ var PutCmd = &cobra.Command{
 func get_all_files(filename string) ([]string, error) {
 	var files []string
 
-	if filename[len(filename)-1] == '*' {
+	if filename != "" && filename[len(filename)-1] == '*' {
 
 	} else {
 		info, err := os.Stat(filename)
@@ -62,7 +62,7 @@ func get_all_files_in_directory(dirname string) []string {
 
 	for _, file := range filelist {
 		if file.IsDir() {
-			files = append(files, get_all_files_in_directory(file.Name())...)
+			files = append(files, get_all_files_in_directory(dirname+"/"+file.Name())...)
 		} else {
 			files = append(files, dirname+"/"+file.Name())
 		}
