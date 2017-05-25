@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -121,6 +122,21 @@ func (svc S3Service) S3RawListObject(key string) {
 	}
 
 	fmt.Println(resp)
+}
+
+func (svc S3Service) S3CatObject(key string) {
+	result, err := svc.s3.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(svc.Bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		log.Fatal("Failed to get object", err)
+	}
+	defer result.Body.Close()
+
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(result.Body)
+	fmt.Printf("%+v\n", buf.String())
 }
 
 func (svc S3Service) S3RemoveObject(key string) {
