@@ -1,6 +1,10 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+)
 
 var VERSION_MAJOR = 1
 var VERSION_MINOR = 0
@@ -13,7 +17,7 @@ var RootCmd = &cobra.Command{
 	Short: "s3 utility",
 	Long:  "Utility to work with Amazon AWS S3",
 	Run: func(cmd *cobra.Command, args []string) {
-
+		fmt.Println("Type 's3 help' for a list of commands")
 	},
 }
 
